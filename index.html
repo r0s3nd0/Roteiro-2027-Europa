@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Roteiro Europa 2027</title>
-  <meta name="theme-color" content="#8a4b08">
+  <meta name="theme-color" content="#dbe7f5">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Europa 2027">
   <link rel="manifest" href="manifest.webmanifest">
@@ -12,7 +12,7 @@
   <meta name="description" content="Roteiro de viagem pela Europa Central: Cracóvia, Varsóvia, Praga, Budapeste, Bratislava e Viena — 29/03 a 12/04/2027.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
   <link rel="stylesheet" href="css/style.css">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
@@ -22,12 +22,15 @@
 
   <header class="hero">
     <div class="wrap">
-      <div class="eyebrow" id="tripSubtitle">Roteiro de viagem</div>
-      <h1 id="tripTitle">Europa Central 2027</h1>
+      <div class="hero-top">
+        <div class="brand"><img src="icon.svg" alt="" width="40" height="40"><div><div class="eyebrow" id="tripSubtitle">Roteiro de viagem</div><h1 id="tripTitle">Europa Central 2027</h1></div></div>
+        <div class="countdown" id="countdown"></div>
+      </div>
       <div class="route" id="tripRoute"></div>
       <div class="meta" id="tripMeta"></div>
-      <div class="countdown" id="countdown"></div>
       <span class="edit-tools"><button class="btn sm" data-act="edit-trip">✏️ Editar viagem</button></span>
+      <div class="sec-mini"><h2>Destinos</h2><a href="#cidades">Ver tudo</a></div>
+      <div class="carousel" id="cityCarousel"></div>
     </div>
   </header>
 
@@ -78,7 +81,7 @@
 
     <section class="block" id="mapa">
       <div class="sec-head">
-        <div><div class="sec-num">01 — A rota</div><h2>Mapa interativo</h2></div>
+        <div><div class="sec-num">A rota</div><h2>Mapa interativo</h2></div>
         <span class="muted small">Clique em um ponto para ver detalhes, nota, preço e como chegar.</span>
       </div>
       <div class="map-filters" id="mapFilters"></div>
@@ -92,7 +95,7 @@
 
     <section class="block" id="cidades">
       <div class="sec-head">
-        <div><div class="sec-num">02 — Pontos turísticos</div><h2>O que ver em cada parada</h2></div>
+        <div><div class="sec-num">Pontos turísticos</div><h2>O que ver em cada parada</h2></div>
         <span class="edit-tools"><button class="btn sm" data-act="add-city">＋ Cidade</button></span>
       </div>
       <p class="lead">Cada cidade está dividida nos blocos de tempo que o roteiro oferece. Os pontos foram agrupados por proximidade a pé. Preços de tabela 2025–2026 para adulto (≈ = estimativa), convertidos ao vivo para euro e real. Notas do Google aproximadas — atualize ao vivo em ⚙️.</p>
@@ -100,7 +103,7 @@
     </section>
 
     <section class="block" id="calendario">
-      <div class="sec-head"><div><div class="sec-num">03 — Dia a dia</div><h2>Calendário completo</h2></div></div>
+      <div class="sec-head"><div><div class="sec-num">Dia a dia</div><h2>Calendário completo</h2></div></div>
       <div class="table-wrap"><table>
         <thead><tr><th>Data</th><th>Destino / deslocamento</th><th>Programa</th><th>Noite</th><th class="edit-only"></th></tr></thead>
         <tbody id="calBody"></tbody>
@@ -108,7 +111,7 @@
     </section>
 
     <section class="block" id="hospedagens">
-      <div class="sec-head"><div><div class="sec-num">04 — Hospedagens</div><h2>Onde você dorme</h2></div></div>
+      <div class="sec-head"><div><div class="sec-num">Hospedagens</div><h2>Onde você dorme</h2></div></div>
       <div class="table-wrap" style="margin-bottom:16px"><table>
         <thead><tr><th>Cidade</th><th>Check-in</th><th>Check-out</th><th>Noites</th></tr></thead>
         <tbody id="stayBody"></tbody>
@@ -122,7 +125,7 @@
 
     <section class="block" id="trens">
       <div class="sec-head">
-        <div><div class="sec-num">05 — Trens e transporte</div><h2>Deslocamentos, estações e valores</h2></div>
+        <div><div class="sec-num">Trens e transporte</div><h2>Deslocamentos, estações e valores</h2></div>
         <span class="edit-tools"><button class="btn sm" data-act="add-train">＋ Trecho</button></span>
       </div>
       <p class="lead">Durações e faixas de preço das ligações diretas hoje. Os horários de 2027 ainda não existem: quanto mais cedo comprar, mais barato.</p>
@@ -139,7 +142,7 @@
 
     <section class="block" id="auschwitz">
       <div class="sec-head">
-        <div><div class="sec-num">06 — Auschwitz-Birkenau</div><h2 id="auTitle">30 de março</h2></div>
+        <div><div class="sec-num">Auschwitz-Birkenau</div><h2 id="auTitle">30 de março</h2></div>
         <span class="edit-tools"><button class="btn sm" data-act="edit-auschwitz">✏️ Editar</button></span>
       </div>
       <div id="auBox"></div>
@@ -147,7 +150,7 @@
 
     <section class="block" id="saida">
       <div class="sec-head">
-        <div><div class="sec-num">07 — Saída</div><h2>Retorno e aeroporto</h2></div>
+        <div><div class="sec-num">Saída</div><h2>Retorno e aeroporto</h2></div>
         <span class="edit-tools"><button class="btn sm" data-act="edit-departure">✏️ Editar</button></span>
       </div>
       <div id="depBox"></div>
@@ -155,7 +158,7 @@
 
     <section class="block" id="emergencia">
       <div class="sec-head">
-        <div><div class="sec-num">08 — Emergência</div><h2>🆘 Telefones e Embaixadas do Brasil</h2></div>
+        <div><div class="sec-num">Emergência</div><h2>🆘 Telefones e Embaixadas do Brasil</h2></div>
       </div>
       <p class="lead">Em qualquer país da União Europeia, <b>112</b> funciona para polícia, ambulância e bombeiros, de graça, inclusive de celular sem chip local. Toque no número para ligar.</p>
       <div class="grid2" id="emgCards"></div>
@@ -163,18 +166,18 @@
     </section>
 
     <section class="block" id="lavanderias">
-      <div class="sec-head"><div><div class="sec-num">09 — Lavanderias</div><h2>🧺 Lavanderias mais próximas</h2></div></div>
+      <div class="sec-head"><div><div class="sec-num">Lavanderias</div><h2>🧺 Lavanderias mais próximas</h2></div></div>
       <p class="lead">Busca ao vivo no OpenStreetMap ao redor da hospedagem reservada (ou do bairro sugerido, enquanto não houver reserva). Cadastre o endereço do Airbnb em Hospedagens para a lista ficar exata.</p>
       <div class="grid2" id="laundryCards"></div>
     </section>
 
     <section class="block" id="revisao">
-      <div class="sec-head"><div><div class="sec-num">10 — Revisão</div><h2>O que foi conferido e atualizado</h2></div></div>
+      <div class="sec-head"><div><div class="sec-num">Revisão</div><h2>O que foi conferido e atualizado</h2></div></div>
       <div class="card"><ul class="bullets review" id="reviewList"></ul></div>
     </section>
 
     <section class="block" id="fontes">
-      <div class="sec-head"><div><div class="sec-num">11 — Fontes</div><h2>De onde vêm os dados</h2></div></div>
+      <div class="sec-head"><div><div class="sec-num">Fontes</div><h2>De onde vêm os dados</h2></div></div>
       <ol class="bullets" id="sourceList"></ol>
       <p class="muted small" style="margin-top:12px">Nenhum horário ou preço de 2027 foi publicado ainda — trate dias de fechamento e valores como padrão atual, não como confirmação.</p>
     </section>
@@ -183,11 +186,11 @@
   </main>
 
   <nav class="bottom-nav" aria-label="Navegação rápida">
-    <a href="#hoje"><span>📍</span>Hoje</a>
-    <a href="#mapa"><span>🗺️</span>Mapa</a>
-    <a href="#calendario"><span>📅</span>Dias</a>
-    <a href="#emergencia" class="sos"><span>🆘</span>SOS</a>
-    <button type="button" id="moreBtn"><span>☰</span>Mais</button>
+    <a href="#hoje" data-nav="hoje"><span>🏠</span>Hoje</a>
+    <a href="#mapa" data-nav="mapa"><span>🗺️</span>Mapa</a>
+    <a href="#calendario" data-nav="calendario"><span>🗓️</span>Dias</a>
+    <a href="#emergencia" data-nav="emergencia" class="sos"><span>🆘</span>SOS</a>
+    <button type="button" id="moreBtn"><span>▦</span>Mais</button>
   </nav>
   <div class="sheet hidden" id="moreSheet">
     <div class="sheet-panel">
@@ -201,6 +204,7 @@
   <div id="modalRoot"></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
   <script src="js/data.js"></script>
   <script src="js/review.js"></script>
   <script src="js/app.js"></script>

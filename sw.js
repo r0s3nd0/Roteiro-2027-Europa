@@ -1,7 +1,8 @@
 // Service worker: guarda o site e o que você já viu (mapas, fotos) para funcionar sem internet.
-const CACHE = "roteiro2027-v1";
+const CACHE = "roteiro2027-v2";
 const SHELL = ["./", "index.html", "css/style.css", "js/data.js", "js/review.js", "js/app.js", "icon.svg", "manifest.webmanifest",
-  "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css", "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"];
+  "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css", "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+  "https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
