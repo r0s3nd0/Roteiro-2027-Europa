@@ -4,7 +4,7 @@ Site do roteiro **Cracóvia → Varsóvia → Praga → Budapeste → Bratislava
 
 - **Hoje**: cartão com o programa do dia, trens, pontos e atalhos (112 e plantão da embaixada).
 - **Mapa interativo** (Leaflet + OpenStreetMap): pontos numerados por cidade, filtros por cidade e por dia com o caminho do dia, bairros sugeridos para Airbnb, estações, rota de trem, embaixadas, lavanderias, satélite, transporte público e "minha localização".
-- **Relógios** de cada país e de Brasília; **câmbio ao vivo** (BCE) com conversor e preços convertidos para € e R$.
+- **Câmbio ao vivo** (BCE) com conversor e preços convertidos para € e R$.
 - **Notas do Google** (aproximadas; com chave da Google Maps API em ⚙️ ficam ao vivo) e **fotos** da Wikipédia.
 - **Emergência**: 112, polícia, ambulância, bombeiros e Embaixada do Brasil (endereço, telefone e plantão consular) de cada país.
 - **Lavanderias** mais próximas da hospedagem (OpenStreetMap, ao vivo).
