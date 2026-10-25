@@ -22,7 +22,13 @@ python3 -m http.server 8000
 # abra http://localhost:8000
 ```
 
-## Publicar no Firebase Hosting
+## Publicar no GitHub Pages
+
+O workflow `.github/workflows/github-pages.yml` publica a cada push na `main` em
+`https://r0s3nd0.github.io/Roteiro-2027-Europa/`. Requer o repositório público e
+Settings → Pages → Source: **GitHub Actions**.
+
+## Publicar no Firebase Hosting (alternativa)
 
 Manual: `npx firebase-tools login` e `npx firebase-tools deploy --only hosting --project SEU_PROJETO`.
 
