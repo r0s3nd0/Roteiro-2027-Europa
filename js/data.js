@@ -7,7 +7,7 @@
 // price = valor principal em número, usado na conversão automática de moedas.
 
 window.DEFAULT_DATA = {
-  version: 4,
+  version: 5,
   trip: {
     title: "Europa Central 2027",
     subtitle: "15 dias · seis cidades · cinco países",
@@ -46,7 +46,13 @@ window.DEFAULT_DATA = {
           { name: "Stare Miasto", lat: 50.0614, lng: 19.9366, radius: 650 },
           { name: "Grzegórzki", lat: 50.0590, lng: 19.9620, radius: 600 }
         ],
-        booking: { name: "", address: "", link: "", lat: null, lng: null, notes: "" }
+        booking: {
+          name: "Apartamento no centro da cidade (Airbnb)",
+          address: "Cracóvia — a ~300 m da estação Kraków Główny e ~15 min a pé do Rynek (localização aproximada; o endereço exato aparece na reserva)",
+          link: "https://www.airbnb.com.br/rooms/734539476344371713",
+          lat: 50.06709, lng: 19.95109,
+          notes: "✅ Reservado · 29/03 → 31/03 · 3 hóspedes · Anfitriões Marcin e Ula (Superhost) · ★ 4,92 (163 avaliações) · Apartamento inteiro, 2 quartos, 4 camas, 1 banheiro"
+        }
       },
       station: { name: "Kraków Główny", address: "Pawia 5a, 31-154 Kraków", note: "Colada ao shopping Galeria Krakowska, 8 min a pé do Rynek", lat: 50.0675, lng: 19.9474 },
       transit: "MPK: bonde e ônibus — bilhete de 20 min ≈ PLN 4 · 24h ≈ PLN 17",
@@ -344,7 +350,7 @@ window.DEFAULT_DATA = {
 
   // Programa dia a dia. A coluna "noite" é calculada pelas datas das hospedagens.
   days: {
-    "2027-03-29": { route: "Cracóvia", program: "Chegada à noite; check-in no Airbnb; jantar e descanso." },
+    "2027-03-29": { route: "Cracóvia", program: "Chegada à noite; check-in no Airbnb (apartamento perto da Kraków Główny, já reservado); jantar e descanso." },
     "2027-03-30": { route: "Cracóvia + Auschwitz", program: "Visita a Auschwitz-Birkenau durante o dia; retorno a Cracóvia no fim da tarde." },
     "2027-03-31": { route: "Cracóvia → Varsóvia", program: "Manhã em Cracóvia; trem à tarde; chegada e noite em Varsóvia.", travel: true },
     "2027-04-01": { route: "Varsóvia", program: "Dia inteiro para conhecer Varsóvia." },

@@ -16,6 +16,7 @@
   const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* armazenamento indisponível */ } };
 
   let data = load(STORE_KEY, null);
+  if (data && data.cities && (data.version || 0) < window.DEFAULT_DATA.version) save("roteiro2027.backup", data); // guarda edições antigas antes de atualizar
   if (!data || !data.cities || (data.version || 0) < window.DEFAULT_DATA.version) data = clone(window.DEFAULT_DATA);
   let settings = load(SETTINGS_KEY, { googleKey: "" });
   let rates = load(RATES_KEY, { base: "EUR", date: null, fetched: 0, rates: { EUR: 1, BRL: 5.65, PLN: 4.39, CZK: 24.3, HUF: 367 }, fallback: true });
@@ -959,7 +960,8 @@
       <div class="field"><label>Tema</label><select id="themeSel" style="width:auto"><option value="">Automático</option><option value="light">Claro</option><option value="dark">Escuro</option></select></div>
       <div class="field"><label>Seus dados</label><div class="hint" style="margin-bottom:8px">As edições ficam salvas neste navegador. Exporte um arquivo para guardar uma cópia ou abrir em outro aparelho.</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="exp">⬇️ Exportar JSON</button><label class="btn" style="cursor:pointer">⬆️ Importar JSON<input type="file" id="imp" accept="application/json,.json" hidden></label>
-      <button class="btn" id="prt">🖨️ Imprimir / PDF</button><button class="btn danger" id="rst">↺ Restaurar roteiro original</button></div></div>
+      <button class="btn" id="prt">🖨️ Imprimir / PDF</button><button class="btn danger" id="rst">↺ Restaurar roteiro original</button>
+      ${load("roteiro2027.backup", null) ? '<button class="btn" id="bkp">⏪ Recuperar minhas edições anteriores</button>' : ""}</div></div>
       <div class="modal-actions"><div class="right"><button class="btn" data-cancel>Fechar</button></div></div></div></div>`;
     const close = () => { root.innerHTML = ""; };
     $("[data-cancel]", root).onclick = close;
@@ -982,6 +984,10 @@
       } catch (err) { toast("Arquivo inválido: " + err.message); }
     };
     $("#prt").onclick = () => { close(); window.print(); };
+    if ($("#bkp")) $("#bkp").onclick = () => {
+      if (!confirm("Voltar para a versão que você tinha editado antes da última atualização do site?")) return;
+      data = load("roteiro2027.backup", data); data.version = window.DEFAULT_DATA.version; close(); persist(); drawMap(true); toast("Edições anteriores recuperadas.");
+    };
     $("#rst").onclick = () => {
       if (!confirm("Descartar todas as edições e voltar ao roteiro original?")) return;
       data = clone(window.DEFAULT_DATA); close(); persist(); drawMap(true); toast("Roteiro original restaurado.");
