@@ -1,5 +1,6 @@
-# Publica o site no GitHub Pages a cada push na main.
-# Requer (uma vez): repositório público e Settings → Pages → Source: "GitHub Actions".
+# Publica o site no GitHub Pages a cada push na main,
+# copiando os arquivos do site para a branch gh-pages (fonte do Pages).
+# Endereço: https://r0s3nd0.github.io/Roteiro-2027-Europa/
 name: Publicar no GitHub Pages
 
 on:
@@ -8,9 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: pages
@@ -19,19 +18,20 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - name: Monta a pasta do site
+      - name: Atualiza a branch gh-pages
         run: |
-          mkdir _site
-          cp -r index.html css js sw.js manifest.webmanifest icon.svg _site/
-          touch _site/.nojekyll
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: _site
-      - id: deployment
-        uses: actions/deploy-pages@v4
+          mkdir -p /tmp/site
+          cp -r index.html css js sw.js manifest.webmanifest icon.svg /tmp/site/
+          touch /tmp/site/.nojekyll
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin gh-pages
+          git checkout -B gh-pages origin/gh-pages
+          git rm -rq --ignore-unmatch .
+          cp -r /tmp/site/. .
+          git add -A
+          git diff --cached --quiet && { echo "Nada mudou."; exit 0; }
+          git commit -m "Publica ${GITHUB_SHA::7}"
+          git push origin gh-pages

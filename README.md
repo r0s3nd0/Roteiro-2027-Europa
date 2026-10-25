@@ -24,9 +24,9 @@ python3 -m http.server 8000
 
 ## Publicar no GitHub Pages
 
-O workflow `.github/workflows/github-pages.yml` publica a cada push na `main` em
-`https://r0s3nd0.github.io/Roteiro-2027-Europa/`. Requer o repositório público e
-Settings → Pages → Source: **GitHub Actions**.
+No ar em **https://r0s3nd0.github.io/Roteiro-2027-Europa/**. O workflow
+`.github/workflows/github-pages.yml` copia o site para a branch `gh-pages`
+(fonte do Pages) a cada push na `main`.
 
 ## Publicar no Firebase Hosting (alternativa)
 
