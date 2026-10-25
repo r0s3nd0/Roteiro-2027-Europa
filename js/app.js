@@ -158,6 +158,7 @@
     return groups;
   }
   function renderClocks() {
+    if (!$("#clocks")) return;
     const now = new Date();
     const homeTz = data.trip.homeTz || "America/Sao_Paulo";
     const homeOff = tzOffsetMinutes(homeTz, now);
