@@ -181,6 +181,50 @@
     return String.fromCodePoint(...[...cc.toUpperCase()].map((c) => 0x1f1a5 + c.charCodeAt(0)));
   }
 
+
+  // ---------- Ícones monocromáticos (Lucide) ----------
+  // Todo emoji da página vira um ícone de linha na cor do texto; bandeiras viram a sigla do país.
+  const EMO = {
+    "✏️": "pencil", "🗑️": "trash-2", "🆘": "life-buoy", "🧺": "washing-machine", "⚙️": "settings", "🕐": "clock", "💱": "arrow-left-right",
+    "🚆": "train-front", "🚉": "train-front", "🏠": "house", "✈️": "plane", "🗺️": "map", "🗓️": "calendar-days", "🏛️": "landmark", "🛏️": "bed-double",
+    "🕯️": "flower-2", "✅": "circle-check", "📚": "library", "🏳️": "flag", "⚠️": "triangle-alert", "💰": "piggy-bank", "🎟️": "ticket", "💡": "lightbulb",
+    "📌": "pin", "🌙": "moon", "🛬": "plane-landing", "🛫": "plane-takeoff", "📍": "map-pin", "🚶": "footprints", "🧭": "navigation", "🔗": "external-link",
+    "💶": "banknote", "⏱️": "timer", "👮": "shield", "🚑": "ambulance", "🚒": "flame", "☎️": "phone", "🚨": "siren", "✉️": "mail", "🕘": "clock",
+    "👔": "shirt", "🫧": "sparkles", "⛶": "maximize", "⌂": "house", "🏰": "castle", "⛪": "church", "🍽️": "utensils", "⭐": "star", "⬇️": "download",
+    "⬆️": "upload", "🖨️": "printer", "⏪": "history", "🛍️": "shopping-bag", "🕍": "scroll-text", "🏭": "factory", "🏘️": "building-2", "🧱": "brick-wall",
+    "🌆": "building", "🎨": "palette", "🗼": "tower-control", "🌉": "waves", "🕰️": "clock", "🏙️": "building-2", "🏢": "building", "♨️": "bath",
+    "⛰️": "mountain", "🚡": "cable-car", "🛒": "store", "🍺": "beer", "🗿": "hard-hat", "🛸": "orbit", "🎭": "drama", "☕": "coffee", "🖼️": "image",
+    "🎡": "ferris-wheel", "🧳": "luggage", "◎": "locate", "▦": "layout-grid", "↻": "refresh-cw", "↺": "rotate-ccw", "🕐": "clock", "🧾": "receipt"
+  };
+  const EMO_RE = new RegExp("(\\p{Regional_Indicator}{2})|(" + Object.keys(EMO).sort((a, b) => b.length - a.length).map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")|(\\p{Extended_Pictographic}\\uFE0F?)", "gu");
+  const EMO_TEST = new RegExp(EMO_RE.source, "u");
+  const icHtml = (name, cls) => `<i data-lucide="${name}" class="ic${cls ? " " + cls : ""}" aria-hidden="true"></i>`;
+  function icifyNode(root) {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode: (n) => n.parentElement && !n.parentElement.closest("script,style,textarea,option,select,input,title,.leaflet-control-attribution") && EMO_TEST.test(n.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
+    });
+    const nodes = []; while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach((n) => {
+      const html = esc(n.nodeValue).replace(EMO_RE, (m, flag, known, other) => {
+        if (flag) return `<span class="flag-cc">${String.fromCharCode(...[...flag].map((ch) => ch.codePointAt(0) - 0x1f1a5))}</span>`;
+        const name = EMO[known || (other || "").replace(/️$/, "")] || EMO[other];
+        return name ? icHtml(name) : m;
+      });
+      const span = document.createElement("span"); span.className = "ic-wrap"; span.innerHTML = html;
+      n.replaceWith(...span.childNodes);
+    });
+  }
+  let icTimer = null;
+  function refreshIcons(root) {
+    icifyNode(root || document.body);
+    if (window.lucide && document.querySelector("i[data-lucide]")) lucide.createIcons({ attrs: { "stroke-width": 1.9 } });
+  }
+  function refreshIconsSoon() { clearTimeout(icTimer); icTimer = setTimeout(() => refreshIcons(), 20); }
+  // qualquer conteúdo novo (renderizações, pop-ups, modais, avisos) recebe os ícones
+  new MutationObserver((muts) => {
+    if (muts.some((m) => [...m.addedNodes].some((n) => (n.nodeType === 3 ? EMO_TEST.test(n.nodeValue) : n.nodeType === 1 && (EMO_TEST.test(n.textContent) || n.matches("i[data-lucide]") || n.querySelector("i[data-lucide]")))))) refreshIconsSoon();
+  }).observe(document.body, { childList: true, subtree: true, characterData: true });
+
   // ---------- Notas do Google ----------
   function ratingHtml(p) {
     const q = encodeURIComponent([p.name, p.address].filter(Boolean).join(", "));
@@ -259,7 +303,7 @@
       } catch (e) { return; }
     }
     save(IMG_KEY, imgCache);
-    renderCities(); renderMisc(); drawMap(false);
+    renderHeader(); renderCities(); renderMisc(); drawMap(false);
   }
 
   const ALERT_ICON = { "atenção": "⚠️", "economia": "💰", "reservar antes": "🎟️", "otimização": "💡" };
@@ -274,9 +318,9 @@
     document.title = t.title + " — Roteiro";
     $("#tripTitle").textContent = t.title;
     $("#tripSubtitle").textContent = `Roteiro de viagem · ${tripDates().length} dias · ${data.cities.length} cidades · ${countries} países`;
-    $("#tripRoute").innerHTML = data.cities.map((c) => `<a href="#city-${esc(c.id)}" style="color:inherit;text-decoration:none">${esc(c.name)}</a>`).join(' <span class="arrow">→</span> ');
-    $("#tripMeta").innerHTML = `<span><b>${fmtDMY(start)} a ${fmtDMY(end)}</b> · ${nights} noites</span>
-      <span>Chegada: <b>${esc(t.arrival)}</b></span><span>Retorno: <b>${esc(t.departure)}</b></span>`;
+    $("#tripRoute").innerHTML = data.cities.map((c) => `<a href="#city-${esc(c.id)}">${esc(c.name)}</a>`).join('<span class="arrow">›</span>');
+    $("#tripMeta").innerHTML = `<span class="glass-chip">🗓️ ${fmtDM(start)} – ${fmtDMY(end)}</span><span class="glass-chip">🌙 ${nights} noites</span>
+      <span class="glass-chip">🛬 ${esc(t.arrival)}</span><span class="glass-chip">🛫 ${esc(t.departure)}</span>`;
     const days = Math.ceil((parseDate(start) - Date.now()) / 86400000);
     const today = new Date().toISOString().slice(0, 10);
     let cd;
@@ -284,6 +328,13 @@
     else if (today <= end) { const c = nightCityFor(today); cd = `<b>Em viagem!</b> Hoje: ${esc(c ? c.name : "")}`; }
     else cd = "Viagem concluída";
     $("#countdown").innerHTML = cd;
+    $("#cityCarousel").innerHTML = data.cities.map((c, i) => {
+      const img = imgFor(c); const n = nightsBetween(c.checkin, c.checkout);
+      return `<a class="dest" href="#city-${esc(c.id)}" style="--city:${esc(c.color)}${img ? `;background-image:url('${esc(img)}')` : ""}">
+        <span class="dest-top"><span class="glass-chip">${flagEmoji(c.cc)} ${esc(c.country)}</span><span class="glass-chip num">${i + 1}</span></span>
+        <span class="dest-body"><b>${esc(c.name)}</b><small>🗓️ ${fmtDM(c.checkin)} → ${fmtDM(c.checkout)} · ${n} ${n === 1 ? "noite" : "noites"}</small>
+          <span class="dest-cta">Ver roteiro</span></span></a>`;
+    }).join("");
     $("#footLeft").textContent = `${t.title} · ${data.cities[0] ? data.cities[0].name : ""} → ${data.cities.length ? data.cities[data.cities.length - 1].name : ""}`;
     $("#footRight").textContent = `${nights} noites · ${fmtDM(start)} a ${fmtDMY(end)}`;
   }
@@ -344,15 +395,17 @@
     const q = encodeURIComponent([p.name, p.address].filter(Boolean).join(", "));
     const dir = hasGeo ? `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}&travelmode=transit` : `https://www.google.com/maps/dir/?api=1&destination=${q}`;
     const img = imgFor(p);
-    return `<li class="place"><span class="n">${idx + 1}</span><div>
-      ${img ? `<a href="${esc(wikiUrl(p) || img)}" target="_blank" rel="noopener" class="thumb"><img src="${esc(img)}" alt="${esc(p.name)}" loading="lazy"></a>` : ""}
-      ${p.icon ? `<span class="picon" aria-hidden="true">${esc(p.icon)}</span>` : ""}<span class="title">${esc(p.name)}</span>${p.desc ? ` <span class="desc">— ${esc(p.desc)}</span>` : ""}${tools}
-      <div class="prow">${p.address ? `<span class="addr">${esc(p.address)}</span>` : ""}${p.address ? ratingHtml(p) : ""}</div>
-      ${p.priceText && p.priceText !== "—" ? `<div class="prow"><span class="price">${esc(p.priceText)}</span>${convChip(p.price)}</div>` : ""}
-      <div class="links" style="margin-top:3px">
-        ${hasGeo ? `<a href="#mapa" data-act="fly" data-lat="${p.lat}" data-lng="${p.lng}" data-place="${p.id}">📍 Ver no mapa</a>` : ""}
-        ${p.address ? `<a href="${esc(dir)}" target="_blank" rel="noopener">🧭 Como chegar</a>` : ""}
-        ${p.site ? `<a href="${esc(safeUrl(p.site))}" target="_blank" rel="noopener">🔗 ${esc(host(p.site))}</a>` : ""}
+    const media = img ? `<a href="${esc(wikiUrl(p) || img)}" target="_blank" rel="noopener" class="thumb"><img src="${esc(img)}" alt="${esc(p.name)}" loading="lazy"><span class="n">${idx + 1}</span></a>`
+      : `<span class="thumb icon-tile"><span aria-hidden="true">${esc(p.icon || "📍")}</span><span class="n">${idx + 1}</span></span>`;
+    return `<li class="place">${media}<div class="place-body">
+      <div class="place-title">${p.icon && img ? `<span class="picon" aria-hidden="true">${esc(p.icon)}</span>` : ""}<span class="title">${esc(p.name)}</span>${tools}</div>
+      ${p.desc ? `<div class="desc">${esc(p.desc)}</div>` : ""}
+      <div class="prow">${p.address ? ratingHtml(p) : ""}${p.address ? `<span class="addr">📍 ${esc(p.address)}</span>` : ""}</div>
+      ${p.priceText && p.priceText !== "—" ? `<div class="prow"><span class="price">🎟️ ${esc(p.priceText)}</span>${convChip(p.price)}</div>` : ""}
+      <div class="pills">
+        ${hasGeo ? `<a class="pill-btn primary" href="#mapa" data-act="fly" data-lat="${p.lat}" data-lng="${p.lng}" data-place="${p.id}">Ver no mapa</a>` : ""}
+        ${p.address ? `<a class="pill-btn" href="${esc(dir)}" target="_blank" rel="noopener">🧭 Rota</a>` : ""}
+        ${p.site ? `<a class="pill-btn" href="${esc(safeUrl(p.site))}" target="_blank" rel="noopener">🔗 Site</a>` : ""}
       </div></div></li>`;
   }
 
@@ -364,24 +417,28 @@
           <span class="edit-tools"><button class="icon-btn" data-act="edit-block" data-city="${c.id}" data-block="${bi}" title="Editar bloco">✏️</button>
           <button class="icon-btn" data-act="del-block" data-city="${c.id}" data-block="${bi}" title="Remover bloco">🗑️</button></span></div>
         <div>${b.note ? `<p class="desc" style="font-family:var(--serif);margin:0 0 8px">${esc(b.note)}</p>` : ""}
-          <ol class="places">${b.places.map((p, i) => placeHtml(p, i, c, bi)).join("")}</ol>
+          <ol class="places" style="--city:${esc(c.color)}">${b.places.map((p, i) => placeHtml(p, i, c, bi)).join("")}</ol>
           <div class="add-row edit-only"><button class="btn sm" data-act="add-place" data-city="${c.id}" data-block="${bi}">＋ Lugar</button></div>
         </div>
       </div>`).join("");
     const banner = imgFor(c);
+    const pics = c.blocks.flatMap((b) => b.places).map(imgFor).filter(Boolean);
     return `<article class="city" id="city-${esc(c.id)}" style="--city:${esc(c.color)}">
-      ${banner ? `<div class="city-banner" style="background-image:url('${esc(banner)}')"><span>${flagEmoji(c.cc)} ${esc(c.country)}</span></div>` : ""}
-      <div class="city-head">
-        <h3><span class="cc">${esc(c.cc)}</span>${esc(c.name)}
+      <div class="city-cover"${banner ? ` style="background-image:url('${esc(banner)}')"` : ""}>
+        <div class="cover-thumbs">${pics.slice(0, 2).map((u) => `<img src="${esc(u)}" alt="" loading="lazy">`).join("")}${pics.length > 2 ? `<span>+${pics.length - 2}</span>` : ""}</div>
+        <div class="cover-text">
+        <span class="glass-chip">${flagEmoji(c.cc)} ${esc(c.country)}</span>
+        <h3>${esc(c.name)}
           <span class="edit-tools">
             <button class="icon-btn" data-act="edit-city" data-city="${c.id}" title="Editar cidade e datas">✏️</button>
             <button class="icon-btn" data-act="move-city" data-dir="-1" data-city="${c.id}" title="Mover antes">↑</button>
             <button class="icon-btn" data-act="move-city" data-dir="1" data-city="${c.id}" title="Mover depois">↓</button>
             <button class="icon-btn" data-act="del-city" data-city="${c.id}" title="Remover cidade">🗑️</button></span></h3>
-        <div class="city-dates">${fmtDM(c.checkin)} → ${fmtDM(c.checkout)} · ${nights} ${nights === 1 ? "noite" : "noites"} · ${esc(c.currency)}
-          · <a href="#mapa" data-act="fly-city" data-city="${c.id}">mapa</a></div>
+        <div class="city-dates">🗓️ ${fmtDM(c.checkin)} → ${fmtDM(c.checkout)} · ${nights} ${nights === 1 ? "noite" : "noites"} · 💶 ${esc(c.currency)}</div>
+        <div class="cover-tags"><a class="glass-chip" href="#mapa" data-act="fly-city" data-city="${c.id}">🗺️ Mapa</a><a class="glass-chip" href="#hospedagens">🛏️ Hospedagem</a></div>
+        </div>
       </div>
-      ${c.window ? `<div class="window">Janela real: ${esc(c.window)}</div>` : ""}
+      ${c.window ? `<div class="window">⏱️ Janela real: ${esc(c.window.charAt(0).toLowerCase() + c.window.slice(1))}</div>` : ""}
       ${c.alert && c.alert.text ? `<div class="callout"><div class="lbl">${alertIcon(c.alert.label)} ${esc(c.alert.label || "Atenção")}</div><div>${esc(c.alert.text)}</div></div>` : ""}
       ${blocks}
       <div class="add-row edit-only"><button class="btn sm" data-act="add-block" data-city="${c.id}">＋ Bloco de horário</button></div>
@@ -610,7 +667,7 @@
     return L.divIcon({ className: "", html: `<div class="pin" style="background:${color}"><span>${esc(label)}</span></div>`, iconSize: [26, 26], iconAnchor: [13, 26], popupAnchor: [0, -24] });
   }
   function emojiIcon(e) {
-    return L.divIcon({ className: "", html: `<div class="emoji-pin">${e}</div>`, iconSize: [24, 24], iconAnchor: [12, 12], popupAnchor: [0, -10] });
+    return L.divIcon({ className: "", html: `<div class="mk">${EMO[e] ? icHtml(EMO[e]) : e}</div>`, iconSize: [30, 30], iconAnchor: [15, 15], popupAnchor: [0, -14] });
   }
   function popupHtml(p, c, b) {
     const q = encodeURIComponent([p.name, p.address].filter(Boolean).join(", "));
@@ -663,6 +720,7 @@
       document.getElementById("map").classList.toggle("very-far", z < 6);
     };
     map.on("zoomend", zoomDetail); setTimeout(zoomDetail, 0);
+    map.on("popupopen layeradd", refreshIconsSoon);
     L.control.scale({ imperial: false }).addTo(map);
 
     const Ctl = L.Control.extend({
@@ -762,7 +820,7 @@
     (data.emergency || []).forEach((e) => {
       const em = e.embassy;
       if (!em || em.lat == null) return;
-      const m = L.marker([em.lat, em.lng], { icon: L.divIcon({ className: "near-only", html: '<div class="emoji-pin">🇧🇷</div>', iconSize: [24, 24], iconAnchor: [12, 12], popupAnchor: [0, -10] }) }).bindPopup(`<h4>🇧🇷 ${esc(em.name)}</h4><div>${esc(em.address)}</div>
+      const m = L.marker([em.lat, em.lng], { icon: L.divIcon({ className: "near-only", html: `<div class="mk mk-flag">${icHtml("flag")}</div>`, iconSize: [30, 30], iconAnchor: [15, 15], popupAnchor: [0, -14] }) }).bindPopup(`<h4>🇧🇷 ${esc(em.name)}</h4><div>${esc(em.address)}</div>
         <div style="margin-top:4px">☎️ ${tel(em.phone)}<br>🚨 Plantão: ${tel(em.duty)}</div><div class="small muted">Emergência local: 112 · Polícia ${esc(e.police)} · Ambulância ${esc(e.ambulance)}</div>`);
       m.addTo(layers.embassy); markerIndex["emb-" + e.cc] = m;
     });
@@ -1087,6 +1145,17 @@
     if (e.target.id === "moreSheet" || a) $("#moreSheet").classList.add("hidden");
     if (a && a.dataset.sheet === "convert") { e.preventDefault(); $("#widgets").scrollIntoView(); }
   });
+  // destaca na navegação a seção que está na tela
+  if ("IntersectionObserver" in window) {
+    const navObs = new IntersectionObserver((ents) => {
+      ents.forEach((en) => {
+        if (!en.isIntersecting) return;
+        const id = en.target.id;
+        document.querySelectorAll(".bottom-nav a, .nav-links a").forEach((a) => a.classList.toggle("on", a.getAttribute("href") === "#" + id));
+      });
+    }, { rootMargin: "-45% 0px -50% 0px" });
+    document.querySelectorAll("main section[id]").forEach((sec) => navObs.observe(sec));
+  }
   if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
   $("#editToggle").onclick = () => {
     editing = !editing;
@@ -1099,6 +1168,7 @@
   function renderAll() {
     renderHeader(); renderToday(); renderCities(); renderCalendar(); renderStays(); renderTrains(); renderMisc(); renderClocks();
     renderEmergency(); renderLaundry(); renderMapFilters(); drawMap(false);
+    refreshIconsSoon();
   }
 
   applyTheme();
